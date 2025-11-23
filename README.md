@@ -11,19 +11,17 @@
 
 It started with a simple idea: *"I'll grab a cheap used iPad Mini for teleprompter work."*
 
-A 2012 iPad Mini 1 appeared on the local marketplace for £25. Perfect! Small, portable, and exactly what I needed. I bought it, charged it up, opened Safari, and searched for "web teleprompter."
+A 2012 iPad Mini 1 appeared on Facebook marketplace for £25. Perfect! Small, portable, and exactly what I needed. I bought it, charged it up, opened the App Store, and searched for "web teleprompter."
 
 **Every. Single. One. Was. Broken.**
 
 Modern teleprompter web apps are built with ES6+, Flexbox, CSS Grid, and assume you're running at least iOS 12. My little iPad Mini was stuck on iOS 9.3.5 — the final update it would ever receive — and couldn't render any of them properly. Buttons didn't work. Text wouldn't scroll. Some didn't load at all.
 
-I tried downloading teleprompter apps from the App Store. Most required iOS 10+. The few that claimed iOS 9 support had been abandoned years ago and crashed on launch.
 
 Desperate, I went down the jailbreak rabbit hole. Surely someone had patched together a solution for legacy iOS devices? I tried every jailbreak tool I could find:
-- **H3lix** - Installed, but kept crashing
-- **Phoenix** - Semi-tethered nightmare, wouldn't persist
-- **Pangu** - Wrong iOS version
-- **Custom IPAs** - Sideloading failed repeatedly
+- **Lower Install**
+- **App Admin** 
+- **Unc0vered**
 
 Nothing worked. The jailbreak scene for iOS 9 in 2025 is essentially dead.
 
@@ -169,4 +167,4 @@ MIT License - Use it, modify it, host it, whatever. Just don't blame me if your 
 
 **Made with ☕ and a coalition of AI models in 2025**
 
-*Because sometimes the best solution to a modern problem is old-school code and a diverse AI think tank.*
+*Because sometimes all old-school problems need are old-school solutions, dressed as modern ingenuity.*
