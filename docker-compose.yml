@@ -1,0 +1,30 @@
+services:
+  teleprompter:
+    build: .
+    container_name: teleprompter
+    volumes:
+      - ./web:/app/web          # Hot-reload for your HTML
+      - ./data:/app/data        # Persistent DB storage
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+      - PGID=1001
+      - PUID=1001
+      - PORT=3000
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.teleprompter.rule=Host(`teleprompter.${DOMAIN}`)"
+      - "traefik.http.routers.teleprompter.tls=true"
+      - "traefik.http.routers.teleprompter.entrypoints=websecure"
+      - "traefik.http.routers.teleprompter.tls.certresolver=cloudflare"
+      # IMPORTANT: Pointing Traefik to Node.js internal port
+      - "traefik.http.services.teleprompter.loadbalancer.server.port=3000"
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
