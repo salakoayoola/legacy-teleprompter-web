@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Teleprompter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 15px;
+        }
+
+        .control-section {
+            background-color: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 40px;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #4a4a4a;
+            border-radius: 4px;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            background: #646cff;
+            cursor: pointer;
+            margin-top: -11px;
+        }
+
+        .control-group input[type="number"],
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #3a3a3a;
+            color: #ffffff;
+            border: 1px solid #4a4a4a;
+            border-radius: 3px;
+        }
+
+        .control-group input[type="color"] {
+            width: 100%;
+            height: 50px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: #646cff;
+            color: #ffffff;
+            min-width: 120px;
+        }
+
+        button:active {
+            background-color: #535bf2;
+        }
+
+        button.secondary {
+            background-color: #4a4a4a;
+        }
+
+        button.secondary:active {
+            background-color: #5a5a5a;
+        }
+
+        button.danger {
+            background-color: #cc4444;
+        }
+
+        button.danger:active {
+            background-color: #aa3333;
+        }
+
+        button.success {
+            background-color: #44cc44;
+        }
+
+        button.success:active {
+            background-color: #33aa33;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #4a4a4a;
+            border-radius: 3px;
+            resize: vertical;
+        }
+
+        .preview-container {
+            background-color: #000000;
+            padding: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #preview {
+            overflow-y: auto;
+            max-height: 300px;
+            transition: margin-left 0.3s ease, margin-right 0.3s ease;
+        }
+
+        #preview-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: #000000;
+            overflow: hidden;
+        }
+
+        .fullscreen-mode #teleprompter-display {
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        #teleprompter-scroll-container {
+            position: relative;
+            height: 100%;
+        }
+
+        #teleprompter-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            position: relative;
+            top: 0;
+        }
+
+        .fullscreen-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            margin-left: -150px;
+            width: 300px;
+            text-align: center;
+            z-index: 10000;
+        }
+
+        .value-display {
+            display: inline-block;
+            min-width: 50px;
+            text-align: right;
+            font-weight: bold;
+            color: #646cff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .voice-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #cc4444;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .voice-indicator.active {
+            background-color: #44cc44;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="editor-mode" class="container">
+        <h1 style="margin-bottom: 20px; text-align: center;">Teleprompter</h1>
+
+        <div class="control-section">
+            <h2 style="margin-bottom: 15px;">Script Editor</h2>
+            <div class="control-group">
+                <label>Enter your script:</label>
+                <textarea id="script-input" placeholder="Paste or type your script here...">Welcome to the teleprompter.
+
+This is a simple, self-contained teleprompter app designed for old Safari browsers.
+
+Adjust the settings below to customize your reading experience.
+
+When ready, click Start Teleprompter to begin.</textarea>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h2 style="margin-bottom: 15px;">Text Appearance</h2>
+
+            <div class="control-group">
+                <label>Font Size: <span class="value-display" id="font-size-value">32px</span></label>
+                <input type="range" id="font-size" min="16" max="120" value="32" step="2">
+            </div>
+
+            <div class="control-group">
+                <label>Line Spacing: <span class="value-display" id="line-spacing-value">1.5</span></label>
+                <input type="range" id="line-spacing" min="10" max="30" value="15" step="2">
+            </div>
+
+            <div class="control-group">
+                <label>Text Alignment:</label>
+                <select id="text-align">
+                    <option value="left">Left</option>
+                    <option value="center" selected>Center</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Text Colour:</label>
+                <input type="color" id="text-colour" value="#ffffff">
+            </div>
+
+            <div class="control-group">
+                <label>Background Colour:</label>
+                <input type="color" id="bg-colour" value="#000000">
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h2 style="margin-bottom: 15px;">Layout</h2>
+
+            <div class="control-group">
+                <label>Side Margins: <span class="value-display" id="margin-value">20px</span></label>
+                <input type="range" id="side-margin" min="0" max="200" value="20" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="mirror-text"> Mirror Text (Flip Horizontally)
+                </label>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h2 style="margin-bottom: 15px;">Scroll Settings</h2>
+
+            <div class="control-group">
+                <label>Scroll Speed: <span class="value-display" id="speed-value">2</span></label>
+                <input type="range" id="scroll-speed" min="1" max="10" value="2" step="1">
+            </div>
+        </div>
+
+        <div class="control-section" id="voice-control-section">
+            <h2 style="margin-bottom: 15px;">Voice Scrolling</h2>
+
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="voice-enabled"> Enable Voice-Controlled Scrolling
+                    <span class="voice-indicator" id="voice-indicator"></span>
+                </label>
+                <div class="info-text">Automatically adjusts scroll speed based on your speaking pace</div>
+            </div>
+
+            <div class="control-group">
+                <label>Voice Sensitivity: <span class="value-display" id="voice-sensitivity-value">5</span></label>
+                <input type="range" id="voice-sensitivity" min="1" max="10" value="5" step="1">
+                <div class="info-text">Higher values make the scroll speed respond more quickly to your reading pace</div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h2 style="margin-bottom: 15px;">Preview</h2>
+            <div class="preview-container">
+                <div id="preview">
+                    <div id="preview-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="start-btn" class="success" style="font-size: 20px; padding: 20px 40px;">Start Teleprompter</button>
+        </div>
+    </div>
+
+    <div id="fullscreen-mode" class="fullscreen-mode hidden">
+        <div id="teleprompter-display">
+            <div id="teleprompter-scroll-container">
+                <div id="teleprompter-text"></div>
+            </div>
+        </div>
+        <div class="fullscreen-controls">
+            <button id="play-pause-btn">Pause</button>
+            <button id="exit-btn" class="danger">Exit</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var settings = {
+                fontSize: 32,
+                lineSpacing: 1.5,
+                textAlign: 'center',
+                textColour: '#ffffff',
+                bgColour: '#000000',
+                sideMargin: 20,
+                mirrorText: false,
+                scrollSpeed: 2,
+                voiceEnabled: false,
+                voiceSensitivity: 5
+            };
+
+            var scrollInterval = null;
+            var isPlaying = false;
+            var scrollPosition = 0;
+
+            var recognition = null;
+            var isVoiceSupported = false;
+            var wordsSpoken = 0;
+            var lastWordCount = 0;
+            var voiceCheckInterval = null;
+            var currentVoiceSpeed = 0;
+            var targetVoiceSpeed = 0;
+            var lastSpeechTime = 0;
+            var isSpeaking = false;
+
+            var elements = {
+                scriptInput: document.getElementById('script-input'),
+                fontSizeSlider: document.getElementById('font-size'),
+                fontSizeValue: document.getElementById('font-size-value'),
+                lineSpacingSlider: document.getElementById('line-spacing'),
+                lineSpacingValue: document.getElementById('line-spacing-value'),
+                textAlignSelect: document.getElementById('text-align'),
+                textColourPicker: document.getElementById('text-colour'),
+                bgColourPicker: document.getElementById('bg-colour'),
+                sideMarginSlider: document.getElementById('side-margin'),
+                marginValue: document.getElementById('margin-value'),
+                mirrorCheckbox: document.getElementById('mirror-text'),
+                scrollSpeedSlider: document.getElementById('scroll-speed'),
+                speedValue: document.getElementById('speed-value'),
+                voiceEnabledCheckbox: document.getElementById('voice-enabled'),
+                voiceSensitivitySlider: document.getElementById('voice-sensitivity'),
+                voiceSensitivityValue: document.getElementById('voice-sensitivity-value'),
+                voiceIndicator: document.getElementById('voice-indicator'),
+                voiceControlSection: document.getElementById('voice-control-section'),
+                preview: document.getElementById('preview'),
+                previewText: document.getElementById('preview-text'),
+                startBtn: document.getElementById('start-btn'),
+                editorMode: document.getElementById('editor-mode'),
+                fullscreenMode: document.getElementById('fullscreen-mode'),
+                teleprompterText: document.getElementById('teleprompter-text'),
+                teleprompterDisplay: document.getElementById('teleprompter-display'),
+                playPauseBtn: document.getElementById('play-pause-btn'),
+                exitBtn: document.getElementById('exit-btn')
+            };
+
+            var supabaseUrl = null;
+
+            function getSupabaseUrl() {
+                if (supabaseUrl) return supabaseUrl;
+
+                var scripts = document.getElementsByTagName('script');
+                for (var i = 0; i < scripts.length; i++) {
+                    var src = scripts[i].getAttribute('data-supabase-url');
+                    if (src) {
+                        supabaseUrl = src;
+                        return supabaseUrl;
+                    }
+                }
+
+                if (window.location.hostname.includes('localhost') || window.location.hostname === '127.0.0.1') {
+                    supabaseUrl = 'http://127.0.0.1:54321';
+                } else {
+                    var proto = window.location.protocol === 'https:' ? 'https:' : 'http:';
+                    supabaseUrl = proto + '//' + window.location.hostname;
+                }
+
+                return supabaseUrl;
+            }
+
+            function processSpeechWithServer(transcript, isFinal) {
+                var baseUrl = getSupabaseUrl();
+                var functionUrl = baseUrl + '/functions/v1/speech-processor';
+
+                var payload = {
+                    transcript: transcript,
+                    sensitivity: settings.voiceSensitivity,
+                    isFinal: isFinal
+                };
+
+                try {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', functionUrl, true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            targetVoiceSpeed = response.scrollSpeed || 0;
+                            lastSpeechTime = Date.now();
+
+                            if (response.isSpeaking) {
+                                isSpeaking = true;
+                                if (elements.voiceIndicator) {
+                                    elements.voiceIndicator.className = 'voice-indicator active';
+                                }
+                            }
+                        }
+                    };
+
+                    xhr.onerror = function() {
+                        console.log('Could not reach speech processing service');
+                    };
+
+                    xhr.send(JSON.stringify(payload));
+                } catch (e) {
+                    console.log('Error communicating with speech service:', e);
+                }
+            }
+
+            function initSpeechRecognition() {
+                var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!SpeechRecognition) {
+                    isVoiceSupported = false;
+                    elements.voiceControlSection.style.display = 'none';
+                    return;
+                }
+
+                isVoiceSupported = true;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = function(event) {
+                    var transcript = '';
+                    for (var i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+
+                    if (transcript.length > 0) {
+                        processSpeechWithServer(transcript, event.results[event.results.length - 1].isFinal);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.log('Speech recognition error:', event.error);
+                };
+
+                recognition.onend = function() {
+                    if (settings.voiceEnabled && isPlaying) {
+                        setTimeout(function() {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.log('Could not restart recognition:', e);
+                            }
+                        }, 100);
+                    }
+                };
+            }
+
+            function startVoiceRecognition() {
+                if (!isVoiceSupported || !recognition) return;
+
+                try {
+                    recognition.start();
+                    lastSpeechTime = Date.now();
+
+                    voiceCheckInterval = setInterval(function() {
+                        var now = Date.now();
+                        var timeSinceLastSpeech = now - lastSpeechTime;
+
+                        if (timeSinceLastSpeech > 2000) {
+                            isSpeaking = false;
+                            targetVoiceSpeed = 0;
+                            if (elements.voiceIndicator) {
+                                elements.voiceIndicator.className = 'voice-indicator';
+                            }
+                        }
+
+                        var speedDiff = targetVoiceSpeed - currentVoiceSpeed;
+                        currentVoiceSpeed += speedDiff * 0.2;
+
+                    }, 300);
+                } catch (e) {
+                    console.log('Could not start voice recognition:', e);
+                }
+            }
+
+            function stopVoiceRecognition() {
+                if (!isVoiceSupported || !recognition) return;
+
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log('Could not stop recognition:', e);
+                }
+
+                if (voiceCheckInterval) {
+                    clearInterval(voiceCheckInterval);
+                    voiceCheckInterval = null;
+                }
+
+                if (elements.voiceIndicator) {
+                    elements.voiceIndicator.className = 'voice-indicator';
+                }
+
+                currentVoiceSpeed = 0;
+                targetVoiceSpeed = 0;
+                isSpeaking = false;
+            }
+
+            function updatePreview() {
+                var text = elements.scriptInput.value;
+                elements.previewText.textContent = text;
+
+                elements.previewText.style.fontSize = settings.fontSize + 'px';
+                elements.previewText.style.lineHeight = settings.lineSpacing;
+                elements.previewText.style.textAlign = settings.textAlign;
+                elements.previewText.style.color = settings.textColour;
+
+                elements.preview.style.backgroundColor = settings.bgColour;
+                elements.preview.style.marginLeft = settings.sideMargin + 'px';
+                elements.preview.style.marginRight = settings.sideMargin + 'px';
+
+                if (settings.mirrorText) {
+                    elements.previewText.style.webkitTransform = 'scaleX(-1)';
+                    elements.previewText.style.transform = 'scaleX(-1)';
+                } else {
+                    elements.previewText.style.webkitTransform = 'scaleX(1)';
+                    elements.previewText.style.transform = 'scaleX(1)';
+                }
+            }
+
+            function updateTeleprompterStyle() {
+                elements.teleprompterText.style.fontSize = settings.fontSize + 'px';
+                elements.teleprompterText.style.lineHeight = settings.lineSpacing;
+                elements.teleprompterText.style.textAlign = settings.textAlign;
+                elements.teleprompterText.style.color = settings.textColour;
+
+                elements.teleprompterDisplay.style.backgroundColor = settings.bgColour;
+                elements.teleprompterDisplay.style.paddingLeft = settings.sideMargin + 'px';
+                elements.teleprompterDisplay.style.paddingRight = settings.sideMargin + 'px';
+
+                if (settings.mirrorText) {
+                    elements.teleprompterText.style.webkitTransform = 'scaleX(-1)';
+                    elements.teleprompterText.style.transform = 'scaleX(-1)';
+                } else {
+                    elements.teleprompterText.style.webkitTransform = 'scaleX(1)';
+                    elements.teleprompterText.style.transform = 'scaleX(1)';
+                }
+            }
+
+            function startScrolling() {
+                if (scrollInterval) return;
+
+                isPlaying = true;
+                elements.playPauseBtn.textContent = 'Pause';
+
+                if (settings.voiceEnabled && isVoiceSupported) {
+                    startVoiceRecognition();
+                }
+
+                scrollInterval = setInterval(function() {
+                    var effectiveSpeed = settings.scrollSpeed;
+
+                    if (settings.voiceEnabled && isVoiceSupported) {
+                        effectiveSpeed = currentVoiceSpeed || 0.1;
+                    }
+
+                    scrollPosition += effectiveSpeed * 0.5;
+                    elements.teleprompterText.style.top = '-' + scrollPosition + 'px';
+
+                    var textHeight = elements.teleprompterText.offsetHeight;
+                    var containerHeight = elements.teleprompterDisplay.offsetHeight;
+
+                    if (scrollPosition > textHeight + containerHeight) {
+                        scrollPosition = 0;
+                    }
+                }, 16);
+            }
+
+            function stopScrolling() {
+                if (!scrollInterval) return;
+
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+                isPlaying = false;
+                elements.playPauseBtn.textContent = 'Play';
+
+                stopVoiceRecognition();
+            }
+
+            function togglePlayPause() {
+                if (isPlaying) {
+                    stopScrolling();
+                } else {
+                    startScrolling();
+                }
+            }
+
+            function startTeleprompter() {
+                var text = elements.scriptInput.value;
+                elements.teleprompterText.textContent = text;
+
+                updateTeleprompterStyle();
+
+                elements.editorMode.className = 'container hidden';
+                elements.fullscreenMode.className = 'fullscreen-mode';
+
+                scrollPosition = 0;
+                elements.teleprompterText.style.top = '0px';
+
+                startScrolling();
+            }
+
+            function exitTeleprompter() {
+                stopScrolling();
+
+                elements.fullscreenMode.className = 'fullscreen-mode hidden';
+                elements.editorMode.className = 'container';
+            }
+
+            elements.fontSizeSlider.addEventListener('input', function() {
+                settings.fontSize = parseInt(this.value, 10);
+                elements.fontSizeValue.textContent = settings.fontSize + 'px';
+                updatePreview();
+            });
+
+            elements.lineSpacingSlider.addEventListener('input', function() {
+                var value = parseInt(this.value, 10);
+                settings.lineSpacing = value / 10;
+                elements.lineSpacingValue.textContent = settings.lineSpacing.toFixed(1);
+                updatePreview();
+            });
+
+            elements.textAlignSelect.addEventListener('change', function() {
+                settings.textAlign = this.value;
+                updatePreview();
+            });
+
+            elements.textColourPicker.addEventListener('change', function() {
+                settings.textColour = this.value;
+                updatePreview();
+            });
+
+            elements.bgColourPicker.addEventListener('change', function() {
+                settings.bgColour = this.value;
+                updatePreview();
+            });
+
+            elements.sideMarginSlider.addEventListener('input', function() {
+                settings.sideMargin = parseInt(this.value, 10);
+                elements.marginValue.textContent = settings.sideMargin + 'px';
+                updatePreview();
+            });
+
+            elements.mirrorCheckbox.addEventListener('change', function() {
+                settings.mirrorText = this.checked;
+                updatePreview();
+            });
+
+            elements.scrollSpeedSlider.addEventListener('input', function() {
+                settings.scrollSpeed = parseInt(this.value, 10);
+                elements.speedValue.textContent = settings.scrollSpeed;
+            });
+
+            elements.voiceEnabledCheckbox.addEventListener('change', function() {
+                settings.voiceEnabled = this.checked;
+            });
+
+            elements.voiceSensitivitySlider.addEventListener('input', function() {
+                settings.voiceSensitivity = parseInt(this.value, 10);
+                elements.voiceSensitivityValue.textContent = settings.voiceSensitivity;
+            });
+
+            elements.scriptInput.addEventListener('input', function() {
+                updatePreview();
+            });
+
+            elements.startBtn.addEventListener('click', startTeleprompter);
+            elements.playPauseBtn.addEventListener('click', togglePlayPause);
+            elements.exitBtn.addEventListener('click', exitTeleprompter);
+
+            initSpeechRecognition();
+            updatePreview();
+        })();
+    </script>
+</body>
+</html>
