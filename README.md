@@ -62,13 +62,18 @@ Unlike the original prototype, this is now a containerized application:
 ### File Structure
 ```
 📦 legacy-ios-teleprompter/
-├── 📄 index.html          # The entire app (HTML + CSS + JS)
-├── 📄 README.md           # You are here
-└── 📄 LICENSE             # MIT License
+├── 📁 doc/
+│   └── 📄 PRD.md             # Product Requirements Document
+├── 📁 web/
+│   └── 📄 index.html         # Frontend app (strict ES5/CSS)
+├── 📄 server.js              # Express backend API & static server
+├── 📄 Dockerfile             # Containerization file
+├── 📄 docker-compose.yml     # Local services deployment
+├── 📄 package.json           # Dependencies and scripts
+└── 📄 README.md              # You are here
 ```
 
-That's it. **One file.** The entire app is self-contained in a single HTML file.
-
+This app has a decoupled architecture, with Node.js/Express powering the API/db and serving static frontend files.
 
 ## 🚀 Deployment
 ### 1. Docker Compose (Recommended)
@@ -80,6 +85,14 @@ git clone https://github.com/salakoayoola/legacy-teleprompter-web.git
 
 # 2. Build and Run
 docker-compose up -d --build
+```
+
+### 2. Local Development
+Ensure Node.js v22+ is installed, then run:
+```bash
+npm install
+npm run dev
+```
 
 ### How To Use The Teleprompter
 
@@ -87,6 +100,7 @@ docker-compose up -d --build
 2. **Tap the Share Icon** (Square with arrow pointing up).
 3. **Tap "Add to Home Screen".**
 4. **Open the new Icon.**
+
 Why? iOS 9 does not support the Fullscreen API via JavaScript. This "WebApp" mode is the only way to remove the URL bar and get 100% screen real estate.
 
 ## Easter Egg

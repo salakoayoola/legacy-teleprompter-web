@@ -1,0 +1,9 @@
+.git
+node_modules
+data
+.env
+doc
+package-lock.json
+README.md
+scripts
+*.log

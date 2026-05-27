@@ -1,399 +1,1653 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Prompter v4</title>
+    <title>Legacy Teleprompter v5</title>
+    <!-- Google Fonts for elevated, professional design -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
     <style>
         /* RESET & BASE */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; font-family: Helvetica, Arial, sans-serif; background: #111; color: #eee; overflow: hidden; }
-        
-        /* UTILS */
-        .clearfix:after { content: ""; display: table; clear: both; }
-        .group { background: #222; padding: 15px; margin-bottom: 10px; border: 1px solid #333; border-radius: 4px; }
-        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            height: 100%;
+            font-family: 'Outfit', -apple-system, Helvetica, Arial, sans-serif;
+            background: #08080c;
+            color: #e4e4e9;
+            overflow: hidden;
+        }
+
+        /* SCROLLBARS FOR SETUP VIEW */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0c0c12;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a35;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff9f0a;
+        }
+
+        /* LAYOUT UTILS */
+        .clearfix:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* CARD PANELS */
+        .group {
+            background: #131318;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #23232a;
+            border-radius: 8px;
+            -webkit-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45);
+        }
+
+        .group-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* TYPOGRAPHY */
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
         /* BUTTONS & INPUTS */
-        button { 
-            display: block; width: 100%; padding: 12px; 
-            font-size: 16px; border: none; border-radius: 4px; 
-            margin-bottom: 5px; color: #fff; cursor: pointer; font-weight: bold;
-            -webkit-appearance: none; 
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            color: #fff;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            -webkit-appearance: none;
+            -webkit-transition: background 0.15s, -webkit-transform 0.1s;
+            transition: background 0.15s, transform 0.1s;
         }
-        .btn-blue { background: #007AFF; }
-        .btn-green { background: #28CD41; }
-        .btn-red { background: #FF3B30; }
-        .btn-grey { background: #444; }
-        .btn-nav { background: #333; border: 1px solid #555; font-size: 20px; padding: 8px; }
-        
-        input[type="text"], select, textarea { 
-            width: 100%; padding: 10px; background: #000; 
-            color: #fff; border: 1px solid #444; margin-bottom: 10px; font-size: 16px;
+
+        button:active {
+            -webkit-transform: scale(0.98);
+            transform: scale(0.98);
         }
-        
+
+        .btn-amber {
+            background: #ff9f0a;
+            color: #000;
+        }
+
+        .btn-amber:hover {
+            background: #ffb340;
+        }
+
+        .btn-amber:active {
+            background: #d97d00;
+        }
+
+        .btn-green {
+            background: #30d158;
+            color: #000;
+        }
+
+        .btn-green:hover {
+            background: #54e175;
+        }
+
+        .btn-green:active {
+            background: #24b045;
+        }
+
+        .btn-red {
+            background: #ff453a;
+            color: #fff;
+        }
+
+        .btn-red:hover {
+            background: #ff6961;
+        }
+
+        .btn-red:active {
+            background: #d63025;
+        }
+
+        .btn-dark {
+            background: #2c2c32;
+            color: #f1f1f4;
+            border: 1px solid #3c3c43;
+        }
+
+        .btn-dark:hover {
+            background: #3a3a40;
+        }
+
+        .btn-dark:active {
+            background: #1c1c1e;
+        }
+
+        .btn-nav {
+            background: #1c1c24;
+            border: 1px solid #3a3a4a;
+            font-size: 22px;
+            padding: 8px;
+            color: #ff9f0a;
+            border-radius: 6px;
+        }
+
+        .btn-nav:active {
+            background: #2a2a35;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #09090d;
+            color: #f1f1f4;
+            border: 1px solid #2d2d3a;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            -webkit-transition: border-color 0.2s;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #ff9f0a;
+        }
+
         /* SLIDERS */
-        label { font-size: 12px; color: #aaa; display: block; margin-bottom: 5px; }
-        input[type=range] { -webkit-appearance: none; background: #444; height: 6px; border-radius: 3px; margin: 5px 0 15px 0; display: block; width: 100%; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: #fff; border-radius: 50%; }
+        label {
+            font-size: 13px;
+            color: #a2a2a9;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        label span {
+            color: #ff9f0a;
+            font-weight: 700;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #2c2c35;
+            height: 6px;
+            border-radius: 3px;
+            margin: 6px 0 16px 0;
+            display: block;
+            width: 100%;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #ff9f0a;
+            border-radius: 50%;
+            cursor: pointer;
+            -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
 
         /* VIEWS */
-        #editor-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: scroll; padding: 15px; z-index: 10; }
-        #prompter-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20; display: none; }
-
-        /* SCROLLER */
-        #scroller { width: 100%; height: 100%; overflow: hidden; position: relative; }
-        #content { padding: 40vh 5% 100vh 5%; outline: none; font-size: 50px; line-height: 1.4; white-space: pre-wrap; }
-        .mirrored { -webkit-transform: scaleX(-1); transform: scaleX(-1); }
-        
-        /* CONTROLS OVERLAY */
-        #overlay { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            background: rgba(10, 10, 10, 0.95); 
-            border-top: 1px solid #333; 
-            padding: 10px; z-index: 30;
+        #editor-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            padding: 20px 15px 60px 15px;
+            z-index: 10;
         }
-        
+
+        #prompter-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 20;
+            display: none;
+        }
+
+        /* SCROLLER & WORD FORMATTING */
+        #scroller {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #content {
+            padding: 45vh 5% 100vh 5%;
+            outline: none;
+            font-size: 50px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-family: 'Courier Prime', Courier, monospace;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .p-word {
+            color: #ffffff;
+            -webkit-transition: color 0.15s;
+            transition: color 0.15s;
+        }
+
+        .p-word.read {
+            color: #4a4a50;
+            /* Dim read words */
+        }
+
+        .p-word.active {
+            color: #ff9f0a;
+            /* Highlight active word */
+            text-shadow: 0 0 10px rgba(255, 159, 10, 0.4);
+        }
+
+        .mirrored {
+            -webkit-transform: scaleX(-1);
+            transform: scaleX(-1);
+        }
+
+        /* EYE-LINE INDICATOR */
+        .eyeline {
+            position: absolute;
+            top: 45%;
+            width: 28px;
+            height: 6px;
+            background: #ff9f0a;
+            z-index: 25;
+            opacity: 0.85;
+            display: none;
+            -webkit-box-shadow: 0 0 8px rgba(255, 159, 10, 0.6);
+            box-shadow: 0 0 8px rgba(255, 159, 10, 0.6);
+        }
+
+        #eyeline-left {
+            left: 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        #eyeline-right {
+            right: 0;
+            border-radius: 4px 0 0 4px;
+        }
+
+        /* CONTROLS OVERLAY */
+        #overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(19, 19, 25, 0.97);
+            border-top: 1px solid #2d2d3a;
+            padding: 15px 15px 12px 15px;
+            z-index: 30;
+            -webkit-transition: -webkit-transform 0.3s ease-out;
+            transition: transform 0.3s ease-out;
+        }
+
+        #overlay.collapsed {
+            -webkit-transform: translateY(118px);
+            transform: translateY(118px);
+        }
+
+        #overlay-handle {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            margin-left: -50px;
+            width: 100px;
+            height: 24px;
+            background: #131318;
+            border: 1px solid #2d2d3a;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            text-align: center;
+            color: #ff9f0a;
+            font-size: 10px;
+            line-height: 23px;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
         /* LAYOUT HELPERS */
-        .row { display: block; width: 100%; margin-bottom: 8px; }
-        .col-20 { float: left; width: 20%; padding: 0 2px; }
-        .col-25 { float: left; width: 25%; padding: 0 2px; }
-        .col-75 { float: left; width: 75%; padding: 0 2px; }
+        .row {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .col-20 {
+            float: left;
+            width: 20%;
+            padding: 0 3px;
+        }
+
+        .col-25 {
+            float: left;
+            width: 25%;
+            padding: 0 3px;
+        }
+
+        .col-30 {
+            float: left;
+            width: 30%;
+            padding: 0 3px;
+        }
+
+        .col-45 {
+            float: left;
+            width: 45%;
+            padding: 0 3px;
+        }
+
+        .col-50 {
+            float: left;
+            width: 50%;
+            padding: 0 3px;
+        }
+
+        .col-70 {
+            float: left;
+            width: 70%;
+            padding: 0 3px;
+        }
+
+        .col-75 {
+            float: left;
+            width: 75%;
+            padding: 0 3px;
+        }
+
+        /* COUNTDOWN OVERLAY */
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 40;
+            display: none;
+        }
+
+        #countdown-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            font-size: 130px;
+            font-weight: 700;
+            color: #ff9f0a;
+            text-shadow: 0 0 15px rgba(255, 159, 10, 0.5);
+        }
+
+        /* RESUME POSITION MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+        }
+
+        .modal-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 320px;
+            background: #131318;
+            border: 2px solid #ff9f0a;
+            border-radius: 8px;
+            padding: 24px 20px;
+            text-align: center;
+            -webkit-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        /* TAB SYSTEM (ES5/iOS 9 Safe Floats) */
+        .tab-bar {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            background: #131318;
+            border: 1px solid #23232a;
+            border-radius: 8px;
+            padding: 4px;
+            overflow: hidden;
+            -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .tab-btn {
+            float: left;
+            width: 50%;
+            /* Adjusted for 2 consolidated tabs */
+            padding: 12px 5px;
+            font-size: 11px;
+            text-align: center;
+            background: transparent;
+            color: #8e8e93;
+            border-radius: 6px;
+            margin-bottom: 0;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            -webkit-transition: background 0.15s, color 0.15s;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .tab-btn.active {
+            background: #ff9f0a;
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            -webkit-transition: opacity 0.18s ease-in-out;
+            transition: opacity 0.18s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <!-- SETUP VIEW -->
     <div id="editor-view">
-        <h3 style="color:#666; margin:0 0 15px 0; text-align:center;">PROMPTER SETUP</h3>
-        
-        <!-- SCRIPT MANAGER -->
-        <div class="group">
-            <label>Stored Scripts</label>
-            <div class="clearfix">
-                <div style="float:left; width: 68%;">
-                    <select id="list-scripts" onchange="loadScript(this.value)" style="margin-bottom: 0;">
-                        <option value="">Select...</option>
-                    </select>
+        <!-- Header -->
+        <div style="text-align:center; margin-bottom: 15px; padding: 5px 0;">
+            <h2 style="color:#ffffff; font-size: 20px; letter-spacing: 0.5px;">LEGACY TELEPROMPTER</h2>
+            <span
+                style="display:inline-block; font-size:10px; font-weight:700; background:#2a2a35; color:#ff9f0a; padding:3px 8px; border-radius:10px; margin-top:5px; letter-spacing:1px;">V5.0
+                PRO</span>
+        </div>
+
+        <!-- TAB SELECTOR BAR (2 Tabs) -->
+        <div class="tab-bar">
+            <button id="tab-btn-setup" class="tab-btn active" onclick="switchTab('setup')">Teleprompter</button>
+            <button id="tab-btn-calibrator" class="tab-btn" onclick="switchTab('calibrator')">Calibrator</button>
+        </div>
+
+        <!-- TAB 1: SETUP & DISPLAY CONFIGS -->
+        <div id="tab-content-setup" class="tab-content active" style="display:block; opacity:1;">
+            <!-- SCRIPT SELECTOR -->
+            <div class="group">
+                <span class="group-title">Stored Scripts</span>
+                <div class="clearfix">
+                    <div style="float:left; width: 68%;">
+                        <select id="list-scripts" onchange="selectScript(this.value)" style="margin-bottom: 0;">
+                            <option value="">Select a script...</option>
+                        </select>
+                    </div>
+                    <div style="float:right; width: 30%;">
+                        <button class="btn-red" style="padding: 11px; font-size: 13px; margin-bottom: 0;"
+                            onclick="deleteScript()">Delete</button>
+                    </div>
                 </div>
-                <div style="float:right; width: 30%;">
-                    <button class="btn-red" style="padding: 10px; font-size: 14px; margin-bottom: 0;" onclick="deleteScript()">Delete</button>
+            </div>
+
+            <!-- EDITOR & ACTIONS -->
+            <div class="group">
+                <span class="group-title">Script Editor</span>
+                <input type="text" id="input-title" placeholder="Script Title">
+                <textarea id="input-body" style="height: 160px; font-family: monospace;"
+                    placeholder="Paste or type script text here..."></textarea>
+
+                <div class="clearfix">
+                    <button id="btn-save" class="btn-amber" style="width:48%; float:left;" onclick="saveScript()">Save
+                        As New</button>
+                    <button id="btn-update" class="btn-green" style="width:48%; float:right; display:none;"
+                        onclick="updateScript()">Update Script</button>
+                    <button id="btn-clear" class="btn-dark" style="width:48%; float:right;"
+                        onclick="clearInput()">Clear</button>
+                </div>
+            </div>
+
+            <!-- DISPLAY CONFIGS (Merged into Tab 1) -->
+            <div class="group">
+                <span class="group-title">Display Configurations</span>
+
+                <label>Font Size: <span id="display-size">50</span>px</label>
+                <input type="range" id="rng-size" min="30" max="150" value="50" oninput="updateSettings()">
+
+                <label>Side Margins: <span id="display-margin">5</span>%</label>
+                <input type="range" id="rng-margin" min="0" max="40" value="5" oninput="updateSettings()">
+
+                <label>Base Scrolling Speed: <span id="display-settings-speed">25</span></label>
+                <input type="range" id="settings-rng-speed" min="0" max="80" value="25"
+                    oninput="updateSpeed(this.value)">
+
+                <div class="clearfix" style="margin-top: 10px;">
+                    <div class="col-50" style="padding-left:0;"><button id="btn-mirror" class="btn-amber"
+                            onclick="toggleMirror()">Mirror: ON</button></div>
+                    <div class="col-50" style="padding-right:0;"><button id="btn-eyeline" class="btn-amber"
+                            onclick="toggleEyeline()">Eyeline: ON</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- EDITOR -->
-        <div class="group">
-            <input type="text" id="input-title" placeholder="Script Title">
-            <textarea id="input-body" style="height: 120px;" placeholder="Paste your script here..."></textarea>
-            <div class="clearfix">
-                <button class="btn-blue" style="width:48%; float:left;" onclick="saveScript()">Save Script</button>
-                <button class="btn-grey" style="width:48%; float:right;" onclick="clearInput()">Clear</button>
+        <!-- TAB 2: PACE CALIBRATOR -->
+        <div id="tab-content-calibrator" class="tab-content">
+            <div class="group">
+                <span class="group-title">Reading Pace Calibrator</span>
+                <p style="font-size:12px; color:#a2a2a9; margin-bottom:12px; line-height:1.4;">Read the test script
+                    below aloud at your natural pace to auto-calibrate optimal speed:</p>
+
+                <div
+                    style="background:#09090d; padding:12px; border-radius:6px; border:1px solid #23232a; margin-bottom:12px;">
+                    <div id="cal-text-box"
+                        style="font-family: monospace; font-size:14px; line-height:1.4; color:#fff; max-height:80px; overflow-y:auto; word-wrap:break-word;">
+                        The Earth is a very small stage in a vast cosmic arena. Think of the rivers of blood spilled by
+                        all those generals and emperors so that, in glory and triumph, they could become the momentary
+                        masters of a fraction of a dot.
+                    </div>
+                    <div id="cal-timer-display"
+                        style="font-size:11px; font-weight:700; color:#ff9f0a; text-align:center; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px;">
+                        Timer: 0.0s
+                    </div>
+                </div>
+
+                <div class="clearfix">
+                    <button id="btn-cal-action" class="btn-amber" style="width:100%; margin-bottom:0;"
+                        onclick="toggleCalibration()">Start Calibration</button>
+                </div>
+
+                <!-- Result panel -->
+                <div id="cal-result-panel"
+                    style="display:none; margin-top:12px; padding:12px; background:#1c1c24; border-radius:6px; border:1px solid #2d2d3a; text-align:center;">
+                    <p style="font-size:13px; color:#e4e4e9; margin-bottom:8px;">
+                        Reading Pace: <span id="cal-result-wpm" style="color:#ff9f0a; font-weight:700;">0</span> WPM<br>
+                        Settings-Aware Recommended Speed: <span id="cal-result-speed"
+                            style="color:#30d158; font-weight:700;">0</span>
+                    </p>
+                    <button class="btn-green" style="font-size:12px; padding:8px 12px; margin-bottom:0;"
+                        onclick="applyCalibration()">Apply Speed Recommendation</button>
+                </div>
             </div>
         </div>
 
-        <!-- DISPLAY SETTINGS -->
-        <div class="group">
-            <label>Font Size: <span id="display-size">50</span>px</label>
-            <input type="range" id="rng-size" min="30" max="150" value="50" oninput="updateSettings()">
-            
-            <!-- NEW: Margin Control -->
-            <label>Side Margins: <span id="display-margin">5</span>%</label>
-            <input type="range" id="rng-margin" min="0" max="40" value="5" oninput="updateSettings()">
-            
-            <button id="btn-mirror" class="btn-green" onclick="toggleMirror()">Mirror: ON</button>
-        </div>
-
-        <button class="btn-green" style="padding: 25px; font-size: 22px; margin-bottom: 50px;" onclick="startPrompter()">LAUNCH PROMPTER</button>
+        <!-- GLOBAL PROMPTER LAUNCHER -->
+        <button class="btn-green" style="padding: 18px; font-size: 17px; margin-top: 10px; margin-bottom: 40px;"
+            onclick="startPrompter()">LAUNCH PROMPTER</button>
     </div>
 
     <!-- PROMPTER VIEW -->
     <div id="prompter-view">
+        <!-- Visual guide lines for reader -->
+        <div id="eyeline-left" class="eyeline"></div>
+        <div id="eyeline-right" class="eyeline"></div>
+
         <div id="scroller">
             <div id="content" class="mirrored"></div>
         </div>
-        
+
         <!-- OVERLAY CONTROLS -->
         <div id="overlay">
-            <!-- Nav Buttons -->
+            <div id="overlay-handle" onclick="toggleOverlay()">CONTROLS ▲</div>
+
+            <!-- Navigation Buttons -->
             <div class="clearfix row">
                 <div class="col-20"><button class="btn-nav" onclick="navScroll('top')">«</button></div>
                 <div class="col-20"><button class="btn-nav" onclick="navScroll('up')">‹</button></div>
                 <div class="col-20"><button class="btn-nav" onclick="navScroll('down')">›</button></div>
                 <div class="col-20"><button class="btn-nav" onclick="navScroll('bottom')">»</button></div>
-                <div class="col-20" style="text-align:center; font-size:12px; padding-top:10px; color:#888;">NAV</div>
-            </div>
-
-            <!-- Speed Slider -->
-            <div class="clearfix row" style="background:#222; padding:5px; border-radius:4px;">
-                <div style="float:left; width:20%; font-size:12px; padding-top:8px; text-align:center; color:#aaa;">SPEED: <span id="val-speed" style="color:#fff; font-weight:bold;">25</span></div>
-                <div style="float:right; width:78%;">
-                    <input type="range" id="rng-speed" min="0" max="80" value="25" oninput="updateSpeed(this.value)" style="margin:5px 0;">
+                <div class="col-20"
+                    style="text-align:center; font-size:11px; padding-top:10px; color:#8e8e93; font-weight:700;">NAV
                 </div>
             </div>
 
-            <!-- Play/Exit -->
+            <!-- Speed Slider -->
+            <div class="clearfix row"
+                style="background:#09090d; padding:8px 10px; border-radius:6px; border:1px solid #23232a;">
+                <div
+                    style="float:left; width:22%; font-size:12px; padding-top:6px; text-align:center; color:#8e8e93; font-weight:700;">
+                    SPEED: <span id="val-speed" style="color:#ff9f0a;">25</span></div>
+                <div style="float:right; width:75%;">
+                    <input type="range" id="rng-speed" min="0" max="80" value="25" oninput="updateSpeed(this.value)"
+                        style="margin:4px 0 0 0;">
+                </div>
+            </div>
+
+            <!-- Play/Exit Controls -->
             <div class="clearfix row">
                 <div class="col-25">
                     <button class="btn-red" onclick="stopPrompter()">EXIT</button>
                 </div>
-                <div class="col-75">
-                    <button id="btn-play" class="btn-blue" onclick="togglePlay()">PLAY</button>
+                <div class="col-45" id="play-container">
+                    <button id="btn-play" class="btn-green" onclick="togglePlay()">PLAY</button>
+                </div>
+                <div class="col-30" id="voice-container">
+                    <button id="btn-voice" class="btn-dark" onclick="toggleVoiceScroll()">VOICE</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- COUNTDOWN OVERLAY -->
+    <div id="countdown-overlay" class="countdown-overlay">
+        <div id="countdown-number">3</div>
+    </div>
+
+    <!-- RESUME MODAL -->
+    <div id="resume-dialog" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h4 style="margin-top:0; color:#ff9f0a; font-size:18px; letter-spacing:0.5px; margin-bottom:8px;">RESUME
+                READING?</h4>
+            <p style="font-size:13px; color:#a2a2a9; line-height:1.4; margin-bottom:20px;">A saved scroll position was
+                found. Resume where you left off?</p>
+            <button class="btn-amber" onclick="confirmResume(true)" style="margin-bottom:8px;">Yes, Resume</button>
+            <button class="btn-dark" onclick="confirmResume(false)">No, Start Over</button>
+        </div>
+    </div>
+
+    <!-- BACKGROUND NOSLEEP CACHE -->
     <video id="nosleep-video" playsinline webkit-playsinline muted loop style="display:none;">
         <source src="data:video/mp4;base64,AAAAHGZ0eXBNTRQAAACAAAAAABAAAABtZGF0AAAAAAAAAAAAAA==" type="video/mp4">
     </video>
 
-<script>
-    // ES5 COMPATIBLE JS
+    <script>
+        // --- STATE ---
+        var isMirrored = true;
+        var isEyelineEnabled = true;
+        var isPlaying = false;
+        var isOverlayCollapsed = false;
+        var scrollTimer = null;
+        var currentSpeed = 25;
+        var preciseScroll = 0.0;
+        var noSleepEnabled = false;
 
-    // --- STATE ---
-    var isMirrored = true; 
-    var isPlaying = false;
-    var scrollTimer = null;
-    var currentSpeed = 25;
-    var preciseScroll = 0.0; // Float Accumulator for smooth slow scroll
-    var noSleepEnabled = false;
+        var activeScriptId = null; // Currently selected database script ID
+        var hasCountedDown = false; // Prevents triggering countdown repeatedly on mid-speech pauses
+        var savedScrollPosition = 0; // Holds position to resume if modal confirms
+        var countdownInterval = null; // Reference to active countdown interval
 
-    // --- DOM ---
-    var elEditor = document.getElementById('editor-view');
-    var elPrompter = document.getElementById('prompter-view');
-    var elContent = document.getElementById('content');
-    var elScroller = document.getElementById('scroller');
-    var elPlay = document.getElementById('btn-play');
-    
-    // Controls
-    var elRngSpeed = document.getElementById('rng-speed');
-    var elRngSize = document.getElementById('rng-size');
-    var elRngMargin = document.getElementById('rng-margin');
+        // Voice Scrolling progressive enhancement state
+        var isVoiceScrollActive = false;
+        var activeWordIndex = 0;
+        var scriptWords = [];
+        var recognition = null;
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    // --- INIT ---
-    window.onload = function() {
-        apiListScripts();
-        loadPreferences();
-        updateSettingsUI();
-    };
+        // Calibration tool state
+        var calState = 0; // 0 = ready, 1 = running
+        var calStartTime = 0;
+        var calTimerInterval = null;
+        var calWpm = 0;
+        var calRecSpeed = 25;
+        var calibratedWpm = 130; // Global calibrated words-per-minute pace
+        var currentWpm = 130; // Active words-per-minute pace (may be overridden manually)
 
-    // --- PREFERENCES ---
-    function loadPreferences() {
-        var size = localStorage.getItem('prompter_size');
-        var margin = localStorage.getItem('prompter_margin');
-        var speed = localStorage.getItem('prompter_speed');
-        var savedMirror = localStorage.getItem('prompter_mirror');
+        // --- DOM ELEMENT REFERENCES ---
+        var elEditor = document.getElementById('editor-view');
+        var elPrompter = document.getElementById('prompter-view');
+        var elContent = document.getElementById('content');
+        var elScroller = document.getElementById('scroller');
+        var elPlay = document.getElementById('btn-play');
+        var elOverlay = document.getElementById('overlay');
+        var elOverlayHandle = document.getElementById('overlay-handle');
 
-        if(size) elRngSize.value = size;
-        if(margin) elRngMargin.value = margin;
-        
-        if(speed) { 
-            currentSpeed = parseInt(speed); 
-            elRngSpeed.value = currentSpeed;
-            document.getElementById('val-speed').innerHTML = currentSpeed;
-        }
-        
-        if(savedMirror === "false") isMirrored = false;
-        else isMirrored = true; 
-    }
+        // Sliders & inputs
+        var elRngSpeed = document.getElementById('rng-speed');
+        var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+        var elRngSize = document.getElementById('rng-size');
+        var elRngMargin = document.getElementById('rng-margin');
 
-    function savePreferences() {
-        localStorage.setItem('prompter_size', elRngSize.value);
-        localStorage.setItem('prompter_margin', elRngMargin.value);
-        localStorage.setItem('prompter_speed', currentSpeed);
-        localStorage.setItem('prompter_mirror', isMirrored);
-    }
+        // --- INITIALIZATION ---
+        window.onload = function () {
+            apiListScripts();
+            loadPreferences();
+            updateSettingsUI();
 
-    function updateSettings() {
-        document.getElementById('display-size').innerHTML = elRngSize.value;
-        document.getElementById('display-margin').innerHTML = elRngMargin.value;
-        savePreferences();
-    }
-
-    function updateSettingsUI() {
-        var btn = document.getElementById('btn-mirror');
-        if(isMirrored) {
-            btn.innerHTML = "Mirror: ON";
-            btn.className = "btn-green";
-        } else {
-            btn.innerHTML = "Mirror: OFF";
-            btn.className = "btn-grey";
-        }
-        updateSettings(); // Refreshes labels
-    }
-
-    function toggleMirror() {
-        isMirrored = !isMirrored;
-        updateSettingsUI();
-    }
-
-    function enableNoSleep() {
-        if(noSleepEnabled) return;
-        var video = document.getElementById('nosleep-video');
-        video.play();
-        noSleepEnabled = true;
-    }
-
-    // --- PROMPTER ENGINE ---
-    function startPrompter() {
-        var text = document.getElementById('input-body').value;
-        elContent.innerHTML = text.replace(/\n/g, "<br>");
-        
-        // Apply Visuals (Size, Margin, Mirror)
-        elContent.style.fontSize = elRngSize.value + "px";
-        
-        var marg = elRngMargin.value + "%";
-        elContent.style.paddingLeft = marg;
-        elContent.style.paddingRight = marg;
-
-        elContent.className = isMirrored ? "mirrored" : "";
-        
-        enableNoSleep();
-        elEditor.style.display = 'none';
-        elPrompter.style.display = 'block';
-        
-        isPlaying = false;
-        setPlayState(false);
-    }
-
-    function stopPrompter() {
-        clearInterval(scrollTimer);
-        elPrompter.style.display = 'none';
-        elEditor.style.display = 'block';
-    }
-
-    function togglePlay() {
-        setPlayState(!isPlaying);
-    }
-
-    function setPlayState(play) {
-        isPlaying = play;
-        if(isPlaying) {
-            elPlay.innerHTML = "PAUSE";
-            elPlay.className = "btn-green";
-            
-            // Initialize float accumulator with current integer position to prevent jumps
-            preciseScroll = elScroller.scrollTop;
-            
-            startScrollLoop();
-        } else {
-            elPlay.innerHTML = "PLAY";
-            elPlay.className = "btn-blue";
-            clearInterval(scrollTimer);
-        }
-    }
-
-    function startScrollLoop() {
-        clearInterval(scrollTimer);
-        scrollTimer = setInterval(function() {
-            if(currentSpeed > 0) {
-                // SUB-PIXEL FIX:
-                // Store precise value in variable, apply floor to DOM
-                preciseScroll += (currentSpeed / 10); 
-                elScroller.scrollTop = preciseScroll;
+            // Progressive Enhancement check for Speech Recognition (voice scroll)
+            if (!SpeechRecognition) {
+                document.getElementById('voice-container').style.display = 'none';
+                document.getElementById('play-container').style.width = '75%';
+            } else {
+                initSpeechRecognition();
             }
-        }, 20);
-    }
+        };
 
-    function updateSpeed(val) {
-        currentSpeed = parseInt(val);
-        document.getElementById('val-speed').innerHTML = currentSpeed;
-        savePreferences();
-    }
+        // --- SWITCH TAB FUNCTION (ES5/iOS 9 Safe) ---
+        function switchTab(tabName) {
+            var tabs = ['setup', 'calibrator'];
+            for (var i = 0; i < tabs.length; i++) {
+                var name = tabs[i];
+                var btn = document.getElementById('tab-btn-' + name);
+                var content = document.getElementById('tab-content-' + name);
 
-    function navScroll(action) {
-        // When navigating manually, we must update the accumulator
-        // otherwise resuming play will jump back to the old accumulator value
-        var h = elScroller.clientHeight;
-        var current = elScroller.scrollTop;
-        var total = elScroller.scrollHeight;
-        var target = current;
-
-        if(action === 'top') target = 0;
-        if(action === 'bottom') target = total;
-        if(action === 'up') target = Math.max(0, current - (h * 0.2));
-        if(action === 'down') target = Math.min(total, current + (h * 0.2));
-        
-        elScroller.scrollTop = target;
-        preciseScroll = target; // Sync!
-    }
-
-    // --- API CALLS reuse ---
-    function clearInput() {
-        document.getElementById('input-title').value = "";
-        document.getElementById('input-body').value = "";
-        document.getElementById('list-scripts').value = "";
-    }
-
-    function apiListScripts() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/scripts', true);
-        xhr.onload = function() {
-            if(xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
-                var sel = document.getElementById('list-scripts');
-                sel.innerHTML = '<option value="">Select...</option>';
-                for(var i=0; i<data.length; i++) {
-                     var opt = document.createElement('option');
-                     opt.value = data[i].id;
-                     opt.innerHTML = data[i].title;
-                     sel.appendChild(opt);
+                if (name === tabName) {
+                    btn.className = "tab-btn active";
+                    content.style.display = "block";
+                    // Trigger transition delay in ES5
+                    (function (el) {
+                        setTimeout(function () {
+                            el.style.opacity = "1";
+                        }, 20);
+                    })(content);
+                } else {
+                    btn.className = "tab-btn";
+                    content.style.display = "none";
+                    content.style.opacity = "0";
                 }
             }
-        };
-        xhr.send();
-    }
+        }
 
-    function loadScript(id) {
-        if(!id) return;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/scripts/'+id, true);
-        xhr.onload = function() {
-            if(xhr.status === 200) {
-                var d = JSON.parse(xhr.responseText);
-                document.getElementById('input-title').value = d.title;
-                document.getElementById('input-body').value = d.content;
+        // --- DYNAMIC GRADIENT SPEEDS ---
+        function getRecommendedSpeed() {
+            var size = parseFloat(elRngSize.value);
+            var margin = parseFloat(elRngMargin.value);
+            if (isNaN(size)) size = 50;
+            if (isNaN(margin)) margin = 5;
+            if (isNaN(calibratedWpm)) calibratedWpm = 130;
+            var sizeFactor = (size * size) / 2500.0;
+            var marginFactor = 0.04 / (1.0 - 2.0 * (margin / 100.0));
+            var calculatedSpeed = calibratedWpm * sizeFactor * marginFactor;
+            var result = Math.round(calculatedSpeed);
+            if (isNaN(result)) result = 25;
+            return Math.max(5, Math.min(75, result));
+        }
+
+        function updateSpeedGradients() {
+            var recSpeed = getRecommendedSpeed();
+
+            var pctRec = (recSpeed / 80.0) * 100.0;
+            var pctMinGreen = ((recSpeed - 4) / 80.0) * 100.0;
+            var pctMaxGreen = ((recSpeed + 4) / 80.0) * 100.0;
+
+            pctRec = Math.max(0, Math.min(100, pctRec));
+            pctMinGreen = Math.max(0, Math.min(100, pctMinGreen));
+            pctMaxGreen = Math.max(0, Math.min(100, pctMaxGreen));
+
+            var gradString = "linear-gradient(to right, #0a84ff 0%, #0a84ff " + pctMinGreen.toFixed(1) + "%, #30d158 " + pctRec.toFixed(1) + "%, #ff453a " + pctMaxGreen.toFixed(1) + "%, #ff453a 100%)";
+            var webkitGradString = "-webkit-linear-gradient(left, #0a84ff 0%, #0a84ff " + pctMinGreen.toFixed(1) + "%, #30d158 " + pctRec.toFixed(1) + "%, #ff453a " + pctMaxGreen.toFixed(1) + "%, #ff453a 100%)";
+
+            if (elRngSpeed) {
+                elRngSpeed.style.background = gradString;
+                elRngSpeed.style.backgroundImage = webkitGradString;
             }
-        };
-        xhr.send();
-    }
-
-    function saveScript() {
-        var payload = {
-            title: document.getElementById('input-title').value || "Untitled",
-            content: document.getElementById('input-body').value,
-            settings: {}
-        };
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/scripts', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function() {
-            if(xhr.status === 200) {
-                alert('Saved');
-                apiListScripts();
+            var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+            if (elSettingsRngSpeed) {
+                elSettingsRngSpeed.style.background = gradString;
+                elSettingsRngSpeed.style.backgroundImage = webkitGradString;
             }
-        };
-        xhr.send(JSON.stringify(payload));
-    }
+        }
 
-    function deleteScript() {
-        var id = document.getElementById('list-scripts').value;
-        if(!id) { alert("Select a script to delete"); return; }
-        if(!confirm("Are you sure?")) return;
+        // --- USER PREFERENCES ---
+        function loadPreferences() {
+            var size = localStorage.getItem('prompter_size');
+            var margin = localStorage.getItem('prompter_margin');
+            var speed = localStorage.getItem('prompter_speed');
+            var savedMirror = localStorage.getItem('prompter_mirror');
+            var savedEyeline = localStorage.getItem('prompter_eyeline');
+            var savedWpm = localStorage.getItem('prompter_wpm');
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('DELETE', '/api/scripts/' + id, true);
-        xhr.onload = function() {
-            if(xhr.status === 200) {
+            var sizeVal = 50;
+            if (size) {
+                sizeVal = parseFloat(size);
+                if (isNaN(sizeVal)) sizeVal = 50;
+            }
+            elRngSize.value = sizeVal;
+            document.getElementById('display-size').innerHTML = sizeVal;
+
+            var marginVal = 5;
+            if (margin) {
+                marginVal = parseFloat(margin);
+                if (isNaN(marginVal)) marginVal = 5;
+            }
+            elRngMargin.value = marginVal;
+            document.getElementById('display-margin').innerHTML = marginVal;
+
+            calibratedWpm = 130;
+            if (savedWpm) {
+                calibratedWpm = parseInt(savedWpm, 10);
+                if (isNaN(calibratedWpm)) calibratedWpm = 130;
+            }
+            
+            var savedCurrentWpm = localStorage.getItem('prompter_current_wpm');
+            if (savedCurrentWpm) {
+                currentWpm = parseInt(savedCurrentWpm, 10);
+                if (isNaN(currentWpm)) currentWpm = calibratedWpm;
+            } else {
+                currentWpm = calibratedWpm;
+            }
+
+            var speedVal = 25;
+            if (speed) {
+                speedVal = parseInt(speed, 10);
+                if (isNaN(speedVal)) {
+                    speedVal = 25;
+                }
+            }
+            
+            currentSpeed = speedVal;
+            elRngSpeed.value = currentSpeed;
+            document.getElementById('val-speed').innerHTML = currentSpeed;
+            
+            var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+            if (elSettingsRngSpeed) {
+                elSettingsRngSpeed.value = currentSpeed;
+            }
+            var elDisplaySettingsSpeed = document.getElementById('display-settings-speed');
+            if (elDisplaySettingsSpeed) {
+                elDisplaySettingsSpeed.innerHTML = currentSpeed;
+            }
+
+            if (!speed) {
+                calculateSpeedFromWpm();
+            }
+
+            if (savedMirror === "false") isMirrored = false;
+            else isMirrored = true;
+
+            if (savedEyeline === "false") isEyelineEnabled = false;
+            else isEyelineEnabled = true;
+
+            updateSpeedGradients();
+        }
+
+        function savePreferences() {
+            localStorage.setItem('prompter_size', elRngSize.value);
+            localStorage.setItem('prompter_margin', elRngMargin.value);
+            localStorage.setItem('prompter_speed', currentSpeed);
+            localStorage.setItem('prompter_mirror', isMirrored);
+            localStorage.setItem('prompter_eyeline', isEyelineEnabled);
+            localStorage.setItem('prompter_wpm', calibratedWpm);
+            localStorage.setItem('prompter_current_wpm', currentWpm);
+        }
+
+        // --- SETTINGS-AWARE SPEED SCALING MODEL (BI-DIRECTIONAL LCK) ---
+        function calculateSpeedFromWpm() {
+            var size = parseFloat(elRngSize.value);
+            var margin = parseFloat(elRngMargin.value);
+            if (isNaN(size)) size = 50;
+            if (isNaN(margin)) margin = 5;
+            if (isNaN(currentWpm)) currentWpm = 130;
+
+            // Dynamic scaling: Speed increases quadratically with size, and inversely with container width
+            var sizeFactor = (size * size) / 2500.0;
+            var marginFactor = 0.04 / (1.0 - 2.0 * (margin / 100.0));
+
+            var calculatedSpeed = currentWpm * sizeFactor * marginFactor;
+            var result = Math.round(calculatedSpeed);
+            if (isNaN(result)) result = 25;
+            currentSpeed = Math.max(5, Math.min(75, result));
+
+            elRngSpeed.value = currentSpeed;
+            document.getElementById('val-speed').innerHTML = currentSpeed;
+
+            var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+            if (elSettingsRngSpeed) {
+                elSettingsRngSpeed.value = currentSpeed;
+            }
+            var elDisplaySettingsSpeed = document.getElementById('display-settings-speed');
+            if (elDisplaySettingsSpeed) {
+                elDisplaySettingsSpeed.innerHTML = currentSpeed;
+            }
+
+            updateSpeedGradients();
+        }
+
+        function calculateWpmFromSpeed() {
+            var size = parseFloat(elRngSize.value);
+            var margin = parseFloat(elRngMargin.value);
+            if (isNaN(size)) size = 50;
+            if (isNaN(margin)) margin = 5;
+            if (isNaN(currentSpeed)) currentSpeed = 25;
+
+            var sizeFactor = (size * size) / 2500.0;
+            var marginFactor = 0.04 / (1.0 - 2.0 * (margin / 100.0));
+            var factor = sizeFactor * marginFactor;
+
+            if (factor > 0) {
+                currentWpm = Math.round(currentSpeed / factor);
+                currentWpm = Math.max(50, Math.min(300, currentWpm));
+                localStorage.setItem('prompter_current_wpm', currentWpm);
+            }
+        }
+
+        function updateSettings() {
+            document.getElementById('display-size').innerHTML = elRngSize.value;
+            document.getElementById('display-margin').innerHTML = elRngMargin.value;
+
+            // Settings changed -> scale prompter speed index to maintain constant calibrated WPM!
+            calculateSpeedFromWpm();
+            savePreferences();
+        }
+
+        function updateSettingsUI() {
+            var btnMirror = document.getElementById('btn-mirror');
+            if (isMirrored) {
+                btnMirror.innerHTML = "Mirror: ON";
+                btnMirror.className = "btn-amber";
+            } else {
+                btnMirror.innerHTML = "Mirror: OFF";
+                btnMirror.className = "btn-dark";
+            }
+
+            var btnEyeline = document.getElementById('btn-eyeline');
+            if (isEyelineEnabled) {
+                btnEyeline.innerHTML = "Eyeline: ON";
+                btnEyeline.className = "btn-amber";
+            } else {
+                btnEyeline.innerHTML = "Eyeline: OFF";
+                btnEyeline.className = "btn-dark";
+            }
+
+            updateSettings();
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            updateSettingsUI();
+        }
+
+        function toggleEyeline() {
+            isEyelineEnabled = !isEyelineEnabled;
+            updateSettingsUI();
+        }
+
+        function toggleOverlay() {
+            isOverlayCollapsed = !isOverlayCollapsed;
+            if (isOverlayCollapsed) {
+                elOverlay.className = "collapsed";
+                elOverlayHandle.innerHTML = "CONTROLS ▲";
+            } else {
+                elOverlay.className = "";
+                elOverlayHandle.innerHTML = "CONTROLS ▼";
+            }
+        }
+
+        function enableNoSleep() {
+            if (noSleepEnabled) return;
+            var video = document.getElementById('nosleep-video');
+            video.play();
+            noSleepEnabled = true;
+        }
+
+        // --- PROMPTER ENGINE ---
+        function startPrompter() {
+            var text = document.getElementById('input-body').value;
+            if (!text.trim()) {
+                alert("Please paste or type your script text in the editor before launching.");
+                return;
+            }
+
+            // Parse script into spanned words to support coordinate mapping and voice tracking
+            var lines = text.split('\n');
+            var wordIndex = 0;
+            var htmlContent = '';
+            scriptWords = []; // Reset words list
+
+            for (var l = 0; l < lines.length; l++) {
+                var lineWords = lines[l].split(' ');
+                for (var w = 0; w < lineWords.length; w++) {
+                    var wordText = lineWords[w];
+                    if (wordText !== '') {
+                        // Clean word: convert to lowercase and remove punctuation
+                        var cleanWord = wordText.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "");
+                        htmlContent += '<span id="w-' + wordIndex + '" class="p-word">' + wordText + '</span> ';
+                        scriptWords.push({
+                            text: cleanWord,
+                            index: wordIndex
+                        });
+                        wordIndex++;
+                    } else {
+                        htmlContent += ' ';
+                    }
+                }
+                htmlContent += '<br>';
+            }
+            elContent.innerHTML = htmlContent;
+
+            // Apply Visual Configs
+            elContent.style.fontSize = elRngSize.value + "px";
+
+            var marginVal = elRngMargin.value + "%";
+            elContent.style.paddingLeft = marginVal;
+            elContent.style.paddingRight = marginVal;
+
+            elContent.className = isMirrored ? "mirrored" : "";
+
+            // Show/Hide Eyeline Guide
+            var leftEye = document.getElementById('eyeline-left');
+            var rightEye = document.getElementById('eyeline-right');
+            if (isEyelineEnabled) {
+                leftEye.style.display = 'block';
+                rightEye.style.display = 'block';
+            } else {
+                leftEye.style.display = 'none';
+                rightEye.style.display = 'none';
+            }
+
+            enableNoSleep();
+            elEditor.style.display = 'none';
+            elPrompter.style.display = 'block';
+
+            isPlaying = false;
+            hasCountedDown = false;
+            setPlayState(false);
+            setVoiceScrollState(false); // Reset Voice scroll state
+
+            // Check if there is a saved scroll position for this script
+            savedScrollPosition = 0;
+            if (activeScriptId) {
+                var savedPos = localStorage.getItem('prompter_pos_' + activeScriptId);
+                if (savedPos) {
+                    savedScrollPosition = parseFloat(savedPos);
+                    if (savedScrollPosition > 50) { // Only prompt if scrolled down past start
+                        document.getElementById('resume-dialog').style.display = 'block';
+                        return;
+                    }
+                }
+            }
+
+            // Fallback or normal start
+            elScroller.scrollTop = 0;
+            preciseScroll = 0;
+        }
+
+        function confirmResume(resume) {
+            document.getElementById('resume-dialog').style.display = 'none';
+            if (resume && savedScrollPosition > 0) {
+                elScroller.scrollTop = savedScrollPosition;
+                preciseScroll = savedScrollPosition;
+                hasCountedDown = true; // Skip countdown on mid-script resume
+            } else {
+                elScroller.scrollTop = 0;
+                preciseScroll = 0;
+            }
+        }
+
+        function stopPrompter() {
+            setVoiceScrollState(false);
+            cancelCountdown();
+            clearInterval(scrollTimer);
+
+            // Save current scroll position to resume next time
+            if (activeScriptId) {
+                localStorage.setItem('prompter_pos_' + activeScriptId, elScroller.scrollTop);
+            }
+
+            elPrompter.style.display = 'none';
+            elEditor.style.display = 'block';
+        }
+
+        function togglePlay() {
+            setPlayState(!isPlaying);
+        }
+
+        function setPlayState(play) {
+            isPlaying = play;
+            if (isPlaying) {
+                // Turn off voice scroll if running play
+                if (isVoiceScrollActive) {
+                    setVoiceScrollState(false);
+                }
+
+                elPlay.innerHTML = "PAUSE";
+                elPlay.className = "btn-red";
+
+                // Sync float accumulator with current integer position to prevent scroll jumps
+                preciseScroll = elScroller.scrollTop;
+
+                // Start countdown if at the top and hasn't counted down yet
+                if (!hasCountedDown && preciseScroll < 50) {
+                    startCountdown(function () {
+                        hasCountedDown = true;
+                        startScrollLoop();
+                    });
+                } else {
+                    startScrollLoop();
+                }
+            } else {
+                elPlay.innerHTML = "PLAY";
+                elPlay.className = "btn-green";
+                cancelCountdown();
+                clearInterval(scrollTimer);
+            }
+        }
+
+        function startCountdown(callback) {
+            var count = 3;
+            var elOverlayScreen = document.getElementById('countdown-overlay');
+            var elNum = document.getElementById('countdown-number');
+
+            elNum.innerHTML = count;
+            elOverlayScreen.style.display = 'block';
+
+            countdownInterval = setInterval(function () {
+                count--;
+                if (count > 0) {
+                    elNum.innerHTML = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    elOverlayScreen.style.display = 'none';
+                    callback();
+                }
+            }, 1000);
+        }
+
+        function cancelCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            document.getElementById('countdown-overlay').style.display = 'none';
+        }
+
+        function startScrollLoop() {
+            clearInterval(scrollTimer);
+            scrollTimer = setInterval(function () {
+                if (currentSpeed > 0) {
+                    // Precise slow scrolling float accumulator
+                    preciseScroll += (currentSpeed / 10.0);
+                    elScroller.scrollTop = Math.floor(preciseScroll);
+                }
+            }, 20);
+        }
+
+        function updateSpeed(val) {
+            currentSpeed = parseInt(val, 10);
+            if (isNaN(currentSpeed)) {
+                currentSpeed = 25;
+            }
+            document.getElementById('val-speed').innerHTML = currentSpeed;
+            elRngSpeed.value = currentSpeed;
+
+            var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+            if (elSettingsRngSpeed) {
+                elSettingsRngSpeed.value = currentSpeed;
+            }
+            var elDisplaySettingsSpeed = document.getElementById('display-settings-speed');
+            if (elDisplaySettingsSpeed) {
+                elDisplaySettingsSpeed.innerHTML = currentSpeed;
+            }
+
+            // Speed adjusted manually -> back-calculate and update global WPM!
+            calculateWpmFromSpeed();
+            updateSpeedGradients();
+            savePreferences();
+        }
+
+        function navScroll(action) {
+            var viewportHeight = elScroller.clientHeight;
+            var currentScroll = elScroller.scrollTop;
+            var totalScrollHeight = elScroller.scrollHeight;
+            var targetScroll = currentScroll;
+
+            if (action === 'top') targetScroll = 0;
+            if (action === 'bottom') targetScroll = totalScrollHeight;
+            if (action === 'up') targetScroll = Math.max(0, currentScroll - (viewportHeight * 0.25));
+            if (action === 'down') targetScroll = Math.min(totalScrollHeight, currentScroll + (viewportHeight * 0.25));
+
+            elScroller.scrollTop = targetScroll;
+            preciseScroll = targetScroll; // Keep accumulator variable in sync
+        }
+
+        // --- PROGRESSIVE ENHANCEMENT: SPEECH RECOGNITION (VOICE SCROLL) ---
+        function initSpeechRecognition() {
+            if (!SpeechRecognition) return;
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function (event) {
+                if (!isVoiceScrollActive) return;
+
+                var transcript = '';
+                for (var i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                processTranscript(transcript);
+            };
+
+            recognition.onerror = function (event) {
+                console.error('Speech recognition error: ', event.error);
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please allow microphone permissions.');
+                    setVoiceScrollState(false);
+                }
+            };
+
+            recognition.onend = function () {
+                // Keep speech recognition running continuously while mode is active
+                if (isVoiceScrollActive) {
+                    try {
+                        recognition.start();
+                    } catch (e) { }
+                }
+            };
+        }
+
+        function toggleVoiceScroll() {
+            setVoiceScrollState(!isVoiceScrollActive);
+        }
+
+        function setVoiceScrollState(active) {
+            if (!SpeechRecognition) return;
+
+            isVoiceScrollActive = active;
+            var btnVoice = document.getElementById('btn-voice');
+
+            if (isVoiceScrollActive) {
+                // Stop clock-driven auto-scrolling
+                setPlayState(false);
+
+                btnVoice.innerHTML = "VOICE: ON";
+                btnVoice.className = "btn-amber";
+
+                // Reset active word index and clear highlights
+                activeWordIndex = 0;
+                var wordsCount = scriptWords.length;
+                for (var i = 0; i < wordsCount; i++) {
+                    var el = document.getElementById('w-' + i);
+                    if (el) el.className = 'p-word';
+                }
+
+                try {
+                    recognition.start();
+                } catch (e) { }
+            } else {
+                btnVoice.innerHTML = "VOICE";
+                btnVoice.className = "btn-dark";
+                try {
+                    recognition.stop();
+                } catch (e) { }
+            }
+        }
+
+        function processTranscript(transcript) {
+            // Parse incoming speech to array of clean lowercased words
+            var spoken = transcript.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "").split(/\s+/);
+            var cleanSpoken = [];
+            for (var i = 0; i < spoken.length; i++) {
+                if (spoken[i].trim() !== "") {
+                    cleanSpoken.push(spoken[i]);
+                }
+            }
+            if (cleanSpoken.length === 0) return;
+
+            var startLook = activeWordIndex;
+            var endLook = Math.min(scriptWords.length, activeWordIndex + 15);
+            var maxValidIndex = -1;
+
+            // Loop through each spoken word in the transcript
+            for (var s = 0; s < cleanSpoken.length; s++) {
+                var spokenWord = cleanSpoken[s];
+
+                // Search for matches inside the script look-ahead window
+                for (var w = startLook; w < endLook; w++) {
+                    if (scriptWords[w].text === spokenWord) {
+                        var distance = w - activeWordIndex;
+                        var isValid = false;
+
+                        if (distance <= 2) {
+                            // Close matches represent normal progression and are always valid
+                            isValid = true;
+                        } else {
+                            // Jumps to duplicate words require neighbor confirmation in the spoken transcript
+                            var hasNextNeighbor = (s + 1 < cleanSpoken.length && w + 1 < scriptWords.length && cleanSpoken[s + 1] === scriptWords[w + 1].text);
+                            var hasPrevNeighbor = (s - 1 >= 0 && w - 1 >= 0 && cleanSpoken[s - 1] === scriptWords[w - 1].text);
+
+                            if (hasNextNeighbor || hasPrevNeighbor) {
+                                isValid = true;
+                            }
+                        }
+
+                        if (isValid && w > maxValidIndex) {
+                            maxValidIndex = w;
+                        }
+                    }
+                }
+            }
+
+            // If we found a valid progress match, update active word
+            if (maxValidIndex !== -1 && maxValidIndex > activeWordIndex) {
+                updateActiveWord(maxValidIndex);
+            }
+        }
+
+        function updateActiveWord(index) {
+            // Mark words as read up to the matched index
+            for (var i = activeWordIndex; i <= index; i++) {
+                var el = document.getElementById('w-' + i);
+                if (el) el.className = 'p-word read';
+            }
+
+            activeWordIndex = index;
+
+            var activeEl = document.getElementById('w-' + activeWordIndex);
+            if (activeEl) {
+                activeEl.className = 'p-word active';
+
+                // Center the active word vertically in view
+                var viewportHeight = elScroller.clientHeight;
+                var targetScroll = activeEl.offsetTop - (viewportHeight * 0.4);
+
+                elScroller.scrollTop = targetScroll;
+                preciseScroll = targetScroll; // Sync accumulator
+            }
+        }
+
+        // --- PACING CALIBRATION TOOL ---
+        function toggleCalibration() {
+            var btn = document.getElementById('btn-cal-action');
+            var timerDisplay = document.getElementById('cal-timer-display');
+            var resultPanel = document.getElementById('cal-result-panel');
+
+            if (calState === 0) {
+                // Start calibration
+                calState = 1;
+                calStartTime = new Date().getTime();
+                resultPanel.style.display = 'none';
+                btn.innerHTML = "Stop / Done Reading";
+                btn.className = "btn-red";
+
+                calTimerInterval = setInterval(function () {
+                    var elapsed = (new Date().getTime() - calStartTime) / 1000.0;
+                    timerDisplay.innerHTML = "Timer: " + elapsed.toFixed(1) + "s";
+                }, 100);
+            } else {
+                // Stop calibration
+                calState = 0;
+                clearInterval(calTimerInterval);
+                btn.innerHTML = "Recalibrate";
+                btn.className = "btn-dark";
+
+                var elapsedSeconds = (new Date().getTime() - calStartTime) / 1000.0;
+                if (elapsedSeconds < 2.0) {
+                    alert("Reading was too short! Please read the full passage aloud.");
+                    resetCalibrationUI();
+                    return;
+                }
+
+                // 38 words in calibration passage
+                calWpm = Math.round((38 / elapsedSeconds) * 60);
+
+                // Calibrate and calculate Settings-Aware prompter speed index
+                var size = parseFloat(elRngSize.value);
+                var margin = parseFloat(elRngMargin.value);
+
+                var sizeFactor = (size * size) / 2500.0;
+                var marginFactor = 0.04 / (1.0 - 2.0 * (margin / 100.0));
+
+                calRecSpeed = Math.round(calWpm * sizeFactor * marginFactor);
+                calRecSpeed = Math.max(5, Math.min(75, calRecSpeed)); // Clamp safely
+
+                document.getElementById('cal-result-wpm').innerHTML = calWpm;
+                document.getElementById('cal-result-speed').innerHTML = calRecSpeed;
+                resultPanel.style.display = 'block';
+
+                timerDisplay.innerHTML = "Finished in " + elapsedSeconds.toFixed(1) + "s";
+            }
+        }
+
+        function resetCalibrationUI() {
+            calState = 0;
+            clearInterval(calTimerInterval);
+            document.getElementById('btn-cal-action').innerHTML = "Start Calibration";
+            document.getElementById('btn-cal-action').className = "btn-amber";
+            document.getElementById('cal-timer-display').innerHTML = "Timer: 0.0s";
+            document.getElementById('cal-result-panel').style.display = 'none';
+        }
+
+        function applyCalibration() {
+            calibratedWpm = calWpm;
+            currentWpm = calWpm;
+            currentSpeed = calRecSpeed;
+            elRngSpeed.value = currentSpeed;
+            document.getElementById('val-speed').innerHTML = currentSpeed;
+
+            var elSettingsRngSpeed = document.getElementById('settings-rng-speed');
+            if (elSettingsRngSpeed) {
+                elSettingsRngSpeed.value = currentSpeed;
+            }
+            var elDisplaySettingsSpeed = document.getElementById('display-settings-speed');
+            if (elDisplaySettingsSpeed) {
+                elDisplaySettingsSpeed.innerHTML = currentSpeed;
+            }
+
+            updateSpeedGradients();
+            savePreferences();
+            alert("Applied calibrated speed: " + calRecSpeed + " (locked to " + calWpm + " WPM)!");
+            resetCalibrationUI();
+
+            // Automatically switch to setup tab to see result speed
+            switchTab('setup');
+        }
+
+        // --- BACKEND API CALLS (ES5 RE-USE WRAPPER) ---
+        function clearInput() {
+            document.getElementById('input-title').value = "";
+            document.getElementById('input-body').value = "";
+            document.getElementById('list-scripts').value = "";
+
+            activeScriptId = null;
+
+            // Hide Update Button and show Save button
+            document.getElementById('btn-update').style.display = 'none';
+            document.getElementById('btn-save').style.width = '100%';
+            document.getElementById('btn-clear').style.width = '48%';
+            document.getElementById('btn-clear').style.display = 'none';
+            setTimeout(function () {
+                document.getElementById('btn-clear').style.display = 'block';
+                document.getElementById('btn-save').style.width = '48%';
+            }, 10);
+        }
+
+        function apiListScripts() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/scripts', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var selectEl = document.getElementById('list-scripts');
+
+                    selectEl.innerHTML = '<option value="">Select a script...</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        var optionEl = document.createElement('option');
+                        optionEl.value = data[i].id;
+                        optionEl.innerHTML = data[i].title;
+                        if (activeScriptId && data[i].id === parseInt(activeScriptId, 10)) {
+                            optionEl.selected = true;
+                        }
+                        selectEl.appendChild(optionEl);
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        function selectScript(id) {
+            if (!id) {
                 clearInput();
-                apiListScripts();
-                alert("Deleted");
+                return;
             }
-        };
-        xhr.send();
-    }
-</script>
+
+            activeScriptId = parseInt(id, 10);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/scripts/' + id, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var script = JSON.parse(xhr.responseText);
+                    document.getElementById('input-title').value = script.title;
+                    document.getElementById('input-body').value = script.content;
+
+                    // Show Update Button and split save layout
+                    document.getElementById('btn-update').style.display = 'block';
+                    document.getElementById('btn-save').style.display = 'block';
+                    document.getElementById('btn-save').innerHTML = "Save As New";
+                } else {
+                    alert("Failed to load script details.");
+                }
+            };
+            xhr.send();
+        }
+
+        function saveScript() {
+            var titleText = document.getElementById('input-title').value || "Untitled";
+            var bodyText = document.getElementById('input-body').value;
+
+            if (!bodyText.trim()) {
+                alert("Script content cannot be empty.");
+                return;
+            }
+
+            var payload = {
+                title: titleText,
+                content: bodyText,
+                settings: {}
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/scripts', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    activeScriptId = response.id;
+                    alert('Script Saved Successfully.');
+                    apiListScripts();
+                    selectScript(activeScriptId);
+                } else {
+                    var errorRes = JSON.parse(xhr.responseText);
+                    alert('Error saving script: ' + errorRes.error);
+                }
+            };
+            xhr.send(JSON.stringify(payload));
+        }
+
+        function updateScript() {
+            if (!activeScriptId) {
+                alert("No active script selected to update.");
+                return;
+            }
+
+            var titleText = document.getElementById('input-title').value || "Untitled";
+            var bodyText = document.getElementById('input-body').value;
+
+            if (!bodyText.trim()) {
+                alert("Script content cannot be empty.");
+                return;
+            }
+
+            var payload = {
+                title: titleText,
+                content: bodyText,
+                settings: {}
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('PUT', '/api/scripts/' + activeScriptId, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    alert('Script Updated Successfully.');
+                    apiListScripts();
+                } else {
+                    var errorRes = JSON.parse(xhr.responseText);
+                    alert('Error updating script: ' + errorRes.error);
+                }
+            };
+            xhr.send(JSON.stringify(payload));
+        }
+
+        function deleteScript() {
+            var selectEl = document.getElementById('list-scripts');
+            var id = selectEl.value;
+            if (!id) {
+                alert("Please select a stored script to delete.");
+                return;
+            }
+
+            if (!confirm("Are you sure you want to delete this script permanently?")) {
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', '/api/scripts/' + id, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // Clear active position memory for this script
+                    localStorage.removeItem('prompter_pos_' + id);
+
+                    clearInput();
+                    apiListScripts();
+                    alert("Script deleted successfully.");
+                } else {
+                    alert("Failed to delete script.");
+                }
+            };
+            xhr.send();
+        }
+    </script>
 </body>
+
 </html>
